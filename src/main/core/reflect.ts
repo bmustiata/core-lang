@@ -3,6 +3,8 @@ import { XHashMap } from './HashMap';
 import { XList } from './List';
 import { XIterable } from './Iterable';
 
+import { list } from './collections';
+
 /**
 * <p>Utilities for "reflection" in JavaScript, for example returning the function name
 * from a function object.</p>

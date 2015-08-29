@@ -1,7 +1,13 @@
-import { Promise } from 'core-promise';
+import { CorePromise as Promise } from 'core-promise';
 import { XIterator } from './Iterator';
 
 import {list} from './collections';
+
+// FIXME:
+import { XArrayList } from './ArrayList';
+import { XList } from './List';
+import { XMap } from './Map';
+import { XHashMap } from './HashMap';
 
 export class XIterable<T> {
     /**
@@ -294,7 +300,7 @@ export class XIterable<T> {
      * Group all the items from this iterable into a map, using the returned value from the mapping function as a key.
      * @param mappingFunction
      */
-    groupBy<V>( mappingFunction : (it : T, index: number, arr: XIterable<T>) => V) : XMap<V, List<T>> {
+    groupBy<V>( mappingFunction : (it : T, index: number, arr: XIterable<T>) => V) : XMap<V, XList<T>> {
         var map = new XHashMap<V, XList<T>>(),
             key : V,
             list : XList<T>;
