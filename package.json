@@ -1,0 +1,35 @@
+{
+  "name": "core-lang",
+  "description": "Classes that should be in the core of the JavaScript language. Collections. Promises. Reflection. Working and tested from IE8+.",
+  "author": {
+    "name": "Bogdan Mustiata",
+    "email": "bogdan.mustiata@gmail.com"
+  },
+  "version": "0.1.0",
+  "dependencies": {
+    "core-promise": "^0.2.2"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-typescript": "^0.6.2"
+  },
+  "keywords": [],
+  "main": "./lib/core-lang.js",
+  "bugs": {
+    "url": "https://github.com/bmustiata/core-lang/issues"
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/bmustiata/core-lang/blob/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmustiata/core-lang.git"
+  },
+  "readme": "Classes that should be in the core of the JavaScript language. Collections. Promises. Reflection. Working and tested from IE8+.",
+  "readmeFilename": "README.md",
+  "homepage": "http://blog.ciplogic.com"
+}
