@@ -1,19 +1,17 @@
+/// <reference path="../../../node_modules/core-promise/core-promise.d.ts"/>
+
 import { CorePromise as Promise } from 'core-promise';
-import { XIterator } from './Iterator';
 
-import {list} from './collections';
-
-// FIXME:
-import { XArrayList } from './ArrayList';
-import { XList } from './List';
-import { XMap } from './Map';
-import { XHashMap } from './HashMap';
+export interface XIterator<T> {
+    hasNext() : boolean;
+    next() : T;
+}
 
 export class XIterable<T> {
     /**
      * <p>Get an iterator over the iterable, that will iterate over each element.</p>
      * @abstract
-     */
+     */ 
     iterator() : XIterator<T> {
         throw new Error("Abstract method");
     }
@@ -60,8 +58,8 @@ export class XIterable<T> {
      */
     map<U>(f: (it: T, index: number, iterable: XIterable<T>) => U, thisParam?: any): XIterable<U>;
     map(f: (it: T, index: number, iterable: XIterable<T>) => any, thisParam?: any): XIterable<any> {
-        var result = new module.exports.XArrayList();
-        this.forEach((it, index, arr) => result.add( f(it, index, arr)), thisParam);
+        var result = new XArrayList<any>();
+        this.forEach((it, index, arr) => result.add( f.call(thisParam, it, index, arr)), thisParam);
 
         return result;
     }
@@ -88,7 +86,7 @@ export class XIterable<T> {
     resolvePromises<T>(): Promise<XIterable<T>> {
         return this.map(Promise.resolve, Promise)
             .transform(c => Promise.all(c.asArray()))
-            .then(list);
+            .then((data : Array<T>) => new XArrayList<T>().addAll(data));
     }
 
     /**
@@ -293,7 +291,7 @@ export class XIterable<T> {
         var data = this.asArray();
         data.shift();
 
-        return list(data);
+        return new XArrayList<T>().addAll(data);
     }
 
     /**
@@ -333,4 +331,449 @@ export class XIterable<T> {
     toString() : string {
         return "XIterable";
     }
+}
+
+/**
+ * A Collection of items is an Iterable object that can hold zero or more other
+ * objects, allowing items to be added and removed to it.
+ */
+export class XCollection<T> extends XIterable<T> {
+    /**
+     * Add the given element into the collection.
+     * @param {T} item Element to be added.
+     * @abstract
+     */
+    add( item : T ) :  XCollection<T> {
+        throw new Error("Abstract method");
+    }
+
+    /**
+     * <p>Adds all the elements from the collection given as a parameter into
+     * this collection.</p>
+     * @param {Collection<T>} items
+     */
+    addAll( items : Array<T> ) :  XCollection<T>;
+    addAll( items : XIterable<T> ) :  XCollection<T>;
+    addAll( items : any ) :  XCollection<T> {
+        if (typeof items.forEach == 'function') {
+            items.forEach(this.add, this);
+        } else {
+            for (var i = 0; i < items.length; i++) {
+                this.add( items[i] );
+            }
+        }
+        
+        return this;
+    }
+
+    /**
+     * <p>Removes the element from the collection.</p>
+     * @param item
+     */
+    remove(item : T) : void {
+        throw new Error("Abstract method");
+    }
+
+    /**
+     * <p>Returns the number of stored items in the collection.</p>
+     */
+    size() : number {
+        throw new Error("Abstract method");
+    }
+
+    /**
+     * <p>Returns true if the collection has no elements.</p>
+     */
+    isEmpty() : boolean {
+        throw new Error("Abstract method");
+    }
+}
+
+// //////////////////////////////////////////////////////////////////////////
+// LIST /////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////
+
+/**
+ * @abstract
+ */
+export class XList<T> extends XCollection<T> {
+    get(i : number) : T {
+        throw new Error("Abstract method");
+    }
+
+    indexOf(item: T): number {
+        var result = -1;
+
+        this.some((it, index) => {
+            if (it === item) {
+                result = index;
+                return true;
+            }
+
+            return false;
+        });
+
+        return result;
+    }
+}
+
+/**
+ * An iterator specific to an array list.
+ */
+export class XArrayListIterator<T> implements XIterator<T> {
+    private list : XArrayList<T>;
+    private index = 0;
+
+    constructor(list : XArrayList<T>) {
+        this.list = list;
+    }
+
+    hasNext():boolean {
+        return this.index < this.list.storage.length;
+    }
+
+    next():T {
+        return this.list.storage[ this.index++ ];
+    }
+}
+
+/**
+ * ArrayList is a very effective implementation of a list that allows fast
+ * indexed access to its internal storage.
+ */
+export class XArrayList<T> extends XList<T> {
+    storage = [];
+
+    constructor(items? : XIterable<T>) {
+        super();
+
+        if (items) {
+            this.addAll( items );
+        }
+    }
+
+    iterator() : XIterator<T> {
+        return new XArrayListIterator(this);
+    }
+
+    add( o : T ) : XList<T> {
+        this.storage.push(o);
+        
+        return this;
+    }
+
+    remove(o: T) {
+        var index = this.indexOf(o);
+
+        if (index < 0) {
+            throw new Error("ArrayList doesn't contain item " + o);
+        }
+
+        this.storage.splice(index, 1);
+    }
+
+    size() : number {
+        return this.storage.length;
+    }
+
+    isEmpty() : boolean {
+        return this.storage.length == 0;
+    }
+
+    get(i : number) : T {
+        return this.storage[i];
+    }
+}
+
+/**
+ * A list that is wrapped over an existing array, and that will
+ * perform all the operations on top of the initial array.
+ */
+export class XArrayListView<T> extends XArrayList<T> {
+    constructor(data) {
+        super(null);
+
+        this.storage = data;
+    }
+}
+
+// //////////////////////////////////////////////////////////////////////////
+// SET //////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////
+
+export class XSet<T> extends XCollection<T> {
+}
+
+export class XHashSetIterator<T> implements XIterator<T> {
+    private _values = [];
+
+
+    constructor(iteratedSet : XHashSet<T>) {
+        for (var key in iteratedSet._storage) {
+            this._values.push(key);
+        }
+    }
+
+    hasNext() : boolean {
+        return this._values.length > 0;
+    }
+
+    next() : T {
+        return this._values.shift();
+    }
+}
+
+export class XHashSet<T> extends XSet<T> {
+    _storage;
+
+    constructor() {
+        super();
+
+        this._storage = {};
+    }
+
+    /**
+     * <p>Get an iterator over the collection, that will iterate over each element.</p>
+     * @abstract
+     */
+    iterator() : XIterator<T> {
+        return new XHashSetIterator(this);
+    }
+
+    /**
+     * Add the given element into the collection.
+     * @param {T} item Element to be added.
+     * @abstract
+     */
+    add( item : T ) : XHashSet<T> {
+        this._storage[<any>item] = item;
+        return this;
+    }
+
+    /**
+     * <p>Removes the element from the collection.</p>
+     * @param item
+     */
+    remove(item : T) : void {
+        delete this._storage[<any>item];
+    }
+
+    /**
+     * <p>Returns the number of stored items in the collection.</p>
+     */
+    size() : number {
+        var count = 0;
+
+        for (var key in this._storage) {
+            count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * <p>Returns true if the collection has no elements.</p>
+     */
+    isEmpty() : boolean {
+        var key;
+
+        for (key in this._storage) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+// //////////////////////////////////////////////////////////////////////////
+// MAP //////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////
+
+export class XMapEntry<K, V> {
+    public constructor(public key : K,
+                       public value: V)
+    {
+    }
+}
+
+export class XMap<K, V> extends XCollection<XMapEntry<K, V>> {
+    add(x : any) : XMap<K, V> {
+        throw new Error("Collection.add is not implemented on maps. Use map.put(key, value) instead.");
+    }
+
+    put(key : K, value : V) : void {
+        throw new Error("Abstract method");
+    }
+
+    get(key : K) : V {
+        throw new Error("Abstract method");
+    }
+
+    removeKey(key : K) : V {
+        throw new Error("Abstract method");
+    }
+
+    hasKey(key : K) : boolean {
+        throw new Error("Abstract method");
+    }
+
+    keys() : XIterable<K> {
+        throw new Error("Abstract method");
+    }
+
+    values() : XIterable<V> {
+        throw new Error("Abstract method");
+    }
+
+    entries() : XIterable<XMapEntry<K, V>> {
+        throw new Error("Abstract method");
+    }
+
+    iterator() : XIterator<XMapEntry<K, V>> {
+        return this.entries().iterator();
+    }
+
+    /**
+     * Returns the current map as an object, with its keys as properties of the object.
+     * @returns {Object}
+     */
+    asObject() : Object {
+        var result = {};
+
+        this.forEach(function(it : XMapEntry<K, V>) {
+            result["" + it.key] = it.value;
+        });
+
+        return result;
+    }
+}
+
+export class XHashMap<K, V> extends XMap<K, V> {
+    private _storage = {};
+    private _elementCount = 0;
+
+    put(key : K, value : V) : void {
+        var k: string = "" + key;
+
+        if (!this._storage.hasOwnProperty(k)) {
+            this._elementCount++;
+        }
+
+        this._storage[k] = value;
+    }
+
+    get(key : K) : V {
+        var k : string = "" + key;
+        return this._storage[k];
+    }
+
+    removeKey(key : K) : V {
+        var k : string = "" + key;
+
+        var result = this._storage[k];
+
+        delete this._storage[k];
+        this._elementCount--;
+
+        return result;
+    }
+
+    hasKey(key : K) : boolean {
+        var k : string = "" + key;
+
+        return this._storage.hasOwnProperty(k);
+    }
+
+    keys() : XIterable<K> {
+        var k,
+            result : XList<K> = new XArrayList<K>();
+
+        for (k in this._storage) {
+            result.add(<K> k);
+        }
+
+        return result;
+    }
+
+    values() : XIterable<V> {
+        return this.keys().map(k => {
+            return this.get(k);
+        });
+    }
+
+    entries() : XIterable<XMapEntry<K, V>> {
+        return this.keys().map(k => {
+            return new XMapEntry(k, this.get(k));
+        });
+    }
+
+    size() : number {
+        return this._elementCount;
+    }
+}
+
+export class XLinkedHashMap<K, V> extends XHashMap<K, V> {
+    private orderedKeys: XList<K> = new XArrayList<K>();
+
+    put(key: K, value: V): void {
+        if (!this.orderedKeys.contains(key)) {
+            this.orderedKeys.add(key);
+        }
+
+        super.put(key, value);
+    }
+
+    removeKey(key: K): V {
+        this.orderedKeys.remove(key);
+        return super.removeKey(key);
+    }
+
+    keys(): XIterable<K> {
+        return this.orderedKeys;
+    }
+}
+
+// //////////////////////////////////////////////////////////////////////////
+// UTILITY FUNCTIONS ////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////
+
+/**
+ * Convert the given array like items object, into a List. This
+ * will do a copy of the array. If you want to use the current
+ * items object as the actual storage of the list, use the ArrayListView
+ * class instead.
+ * @param items
+ */
+export function list<T>(items: Array<T>): XList<T>;
+export function list<T>(items: { length: number }): XList<T>;
+export function list<T>(items: any): XList<any> {
+    var result = new XArrayList<T>();
+
+    for (var i = 0; i < items.length; i++) {
+        result.add( items[i] );
+    }
+
+    return  result;
+}
+
+/**
+ * Convert the given item into a XMap, using its keys as keys of the map.
+ * @param item
+ * @returns {HashMap<K, V>}
+ */
+export function map<K, V>(item : any) : XMap<K, V> {
+    var k,
+        result = new XHashMap<K, V>();
+
+    for (k in item) {
+        if (item.hasOwnProperty(k)) {
+            result.put(k, item[k]);
+        }
+    }
+
+    return result;
+}
+
+export function asArray<T>(item: any) : Array<T> {
+    return item.asArray();
 }

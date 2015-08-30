@@ -18,7 +18,7 @@ module.exports = function(grunt) {
                     declaration: true,
                 },
                 files: [{
-                    dest: "lib/core-lang.js",
+                    dest: "lib/",
                     src: [
                         "src/main/core/**/*.ts",
                         "src/main/core/**/*.d.ts"

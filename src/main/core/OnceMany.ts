@@ -1,4 +1,4 @@
-import { XIterator } from './Iterator';
+import { XIterator } from './Iterable';
 
 /**
  * <p>A OnceMany will return the first element once when its next() method
