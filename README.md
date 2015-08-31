@@ -1,8 +1,11 @@
 # core-lang
 
-Classes that should be in the JavaScript language itself. The collections have full promises support, and TypeScript definitions.
+Classes that should be in the JavaScript language itself. The collections have a rich API to
+work with the data, full promises support, [well written documentation](https://github.com/bmustiata/core-lang/blob/master/src/main/core/Iterable.ts) and TypeScript definitions.
 
 ## Usage
+
+Available classes:
 
 <img src="doc/class-diagram.png">
 
