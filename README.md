@@ -1,6 +1,6 @@
 # core-lang
 
-Classes that should be in the JavaScript language itself. The collections have full promises support
+Classes that should be in the JavaScript language itself. The collections have full promises support, and TypeScript definitions.
 
 ## Usage
 
@@ -19,7 +19,7 @@ API. For example, assuming that our collection contains promises, we can:
 
 ```javascript
 list([1,2,3,4])
-    .map(Promise.resolve) // make them promises
+    .map(Promise.resolve, Promise) // make them promises
     .mapPromise(function(it) {
         // mapPromise first resolves the items in the collection,
         // then it applies the mapping function
@@ -33,3 +33,12 @@ list([1,2,3,4])
         assert.equal([1,4,9,16], collection.asArray());
     });
 ```
+
+Furthermore since the collections are written in TypeScript, they module embeds the .d.ts file:
+
+<img src="doc/vscode-autocomplete.png"/>
+
+## ChangeLog
+
+* v.1.0.0  2015-08-31  Initial release.
+
