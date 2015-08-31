@@ -34,7 +34,8 @@ list([1,2,3,4])
     });
 ```
 
-Furthermore since the collections are written in TypeScript, they module embeds the .d.ts file:
+Furthermore since the collections are written in TypeScript, the module embeds the .d.ts file, so you get full
+autocomplete and documentation support from the IDE (pictured Visual Studio Code)
 
 <img src="doc/vscode-autocomplete.png"/>
 
