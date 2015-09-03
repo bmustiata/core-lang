@@ -7,6 +7,10 @@ module.exports = function(grunt) {
         clean: {
             dist : [
                 "lib/"
+            ],
+
+            test : [
+                "target/test"
             ]
         },
 
@@ -22,6 +26,21 @@ module.exports = function(grunt) {
                     src: [
                         "src/main/core/**/*.ts",
                         "src/main/core/**/*.d.ts"
+                    ]
+                }]
+            },
+
+            "test" : {
+                options: {
+                    module : "commonjs",
+                    sourceMap: true,
+                    declaration: true,
+                },
+                files: [{
+                    dest: "target/test/",
+                    src: [
+                        "src/test/core/**/*.ts",
+                        "src/test/core/**/*.d.ts"
                     ]
                 }]
             }
@@ -48,6 +67,7 @@ module.exports = function(grunt) {
                         "node_modules/dts-generator/node_modules/typescript/bin/typescriptServices_internal.d.ts"
                     ]
                 },
+
                 files : [
                     {
                         expand: true,
@@ -57,6 +77,16 @@ module.exports = function(grunt) {
                     }
                 ]
             }
+        },
+
+        mochaTest: {
+            test: {
+                options: {
+                    reporter: "spec",
+                    captureFile: "target/test/tests_results.txt"
+                },
+                src: ["target/test/**/*.js"]
+            }
         }
     });
 
@@ -64,7 +94,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks("grunt-typescript");
     grunt.loadNpmTasks("dts-generator");
+    grunt.loadNpmTasks("grunt-mocha-test");
+
+    grunt.registerTask("dist", ["clean:dist", "typescript:dist", "dtsGenerator:dist"]);
+    grunt.registerTask("test", ["clean:test", "typescript:test", "mochaTest:test"]);
 
     // register our tasks:
-    grunt.registerTask("default", ["clean", "typescript", "dtsGenerator"]);
+    grunt.registerTask("default", ["dist", "test"]);
 };
