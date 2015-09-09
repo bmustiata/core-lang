@@ -10,7 +10,7 @@ import { XMap, XHashMap, XList, XIterable, list } from './Iterable';
 * @param f
 * @returns {*}
 */
-function functionName(f : any) : string {
+export function functionName(f : any) : string {
     return /^function\s*(.*?)\(/.exec(f.toString())[1];
 }
 
@@ -18,7 +18,7 @@ function functionName(f : any) : string {
 * Return all the functions that are present into the given object.
 * @param obj
 */
-function functions(obj : any) : XMap<string, Function> {
+export function functions(obj : any) : XMap<string, Function> {
     var key,
         result = new XHashMap<string, Function>();
 
@@ -35,7 +35,7 @@ function functions(obj : any) : XMap<string, Function> {
 * Returns a list with the names of the arguments for the given method, in the
 * order they were declared.         
 */
-function argumentNames(f : any) : XList<string> {
+export function argumentNames(f : any) : XList<string> {
     var paramsString = /^function\s*.*?\((.*?)\)/.exec(f.toString())[1];
     var argumentNames = !!paramsString ? paramsString.split(/\s*,\s*/) : [];
 
@@ -48,7 +48,7 @@ function argumentNames(f : any) : XList<string> {
  * @param args
  * @returns {F}
  */
-function create<T>(clazz: ClassDefinition<T>, args: XIterable<any>): T {
+export function create<T>(clazz: ClassDefinition<T>, args: XIterable<any>): T {
     function F() {
         clazz.apply(this, args.asArray());
     }
@@ -58,11 +58,11 @@ function create<T>(clazz: ClassDefinition<T>, args: XIterable<any>): T {
     return new F();
 }
 
-function invoke(f : Function, args : XIterable<any>): any {
+export function invoke(f : Function, args : XIterable<any>): any {
     return f.apply(this, args.asArray());
 }
 
-interface ClassDefinition<T> {
+export interface ClassDefinition<T> {
     new(...any) : T;
     apply : Function;
 }

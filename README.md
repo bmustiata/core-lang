@@ -42,7 +42,53 @@ autocomplete and documentation support from the IDE (pictured Visual Studio Code
 
 <img src="doc/vscode-autocomplete.png"/>
 
+## Extras
+
+### format
+
+`format`is a very simple string formatting method that uses positional parameters in the spirit of .NET:
+
+```javascript
+var format = require("core-lang/lib/stringUtils").format;
+
+var text = format("{0} {1}!", "Hello", "World");
+
+console.log(text); // will output 'Hello World!'
+```
+
+### reflect
+
+`reflect`, as its name implies, offers some utility methods that allow reflection operations on objects and functions.
+
+Here is a sample of reflect displaying its own API:
+
+```javascript
+var reflect = require("core-lang/lib/reflect"),
+    format = require("core-lang/lib/stringUtils").format;
+
+// reflect displaying its own API
+reflect.functions(reflect).forEach(function(method) {
+    console.log(format("function {0}({1});",
+        method.key,
+        reflect.argumentNames(method.value)
+            .join(", ")
+        ));
+});
+```
+
+This will output:
+
+```text
+function functionName(f);
+function functions(obj);
+function argumentNames(f);
+function create(clazz, args);
+function invoke(f, args);
+```
+
 ## ChangeLog
 
+* v.1.1.0  2015-09-10  Exported the reflect methods, and string format.
+* v.1.0.1  2015-09-05  Added a bunch of mocha tests. (unit test)
 * v.1.0.0  2015-08-31  Initial release.
 

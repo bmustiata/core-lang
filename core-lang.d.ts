@@ -404,7 +404,43 @@ declare module 'core-lang/lib/OnceMany' {
 	}
 
 }
-declare module 'core-lang/lib/StringUtils' {
+declare module 'core-lang/lib/reflect' {
+	import { XMap, XList, XIterable } from 'core-lang/lib/Iterable';
+	/**
+	* <p>Utilities for "reflection" in JavaScript, for example returning the function name
+	* from a function object.</p>
+	*/
+	/**
+	* Return the function name from a function object.
+	* @param f
+	* @returns {*}
+	*/
+	export function functionName(f: any): string;
+	/**
+	* Return all the functions that are present into the given object.
+	* @param obj
+	*/
+	export function functions(obj: any): XMap<string, Function>;
+	/**
+	* Returns a list with the names of the arguments for the given method, in the
+	* order they were declared.
+	*/
+	export function argumentNames(f: any): XList<string>;
+	/**
+	 * Calls the given function as a constructor with the given arguments.
+	 * @param clazz
+	 * @param args
+	 * @returns {F}
+	 */
+	export function create<T>(clazz: ClassDefinition<T>, args: XIterable<any>): T;
+	export function invoke(f: Function, args: XIterable<any>): any;
+	export interface ClassDefinition<T> {
+	    new (...any: any[]): T;
+	    apply: Function;
+	}
+
+}
+declare module 'core-lang/lib/stringUtils' {
 	/**
 	 * <p>Utilities functions for string manipulations.</p>
 	 */
