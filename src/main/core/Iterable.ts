@@ -1,6 +1,7 @@
+/// <reference path="../../../node_modules/grunt-typescript/node_modules/typescript/bin/lib.es6.d.ts"/>
 /// <reference path="../../../node_modules/core-promise/core-promise.d.ts"/>
 
-import { CorePromise as Promise } from 'core-promise';
+import { DefaultPromise as Promise } from "core-promise";
 
 export interface XIterator<T> {
     hasNext() : boolean;
@@ -84,9 +85,9 @@ export class XIterable<T> {
      * Maps the current iterable with promises.
      */
     resolvePromises<T>(): Promise<XIterable<T>> {
-        return this.map(Promise.resolve, Promise)
+        return this.map<Promise<T>>(Promise.resolve, Promise)
             .transform(c => Promise.all(c.asArray()))
-            .then((data : Array<T>) => new XArrayList<T>().addAll(data));
+            .then((data) => new XArrayList<T>().addAll(data));
     }
 
     /**

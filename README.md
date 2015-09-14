@@ -88,7 +88,8 @@ function invoke(f, args);
 
 ## ChangeLog
 
-* v.1.1.0  2015-09-10  Exported the reflect methods, and string format.
-* v.1.0.1  2015-09-05  Added a bunch of mocha tests. (unit test)
-* v.1.0.0  2015-08-31  Initial release.
+* v1.1.1  2015-09-15  Collections have the types correctly exported, and the Promise is the ES6 implementation.
+* v1.1.0  2015-09-10  Exported the reflect methods, and string format.
+* v1.0.1  2015-09-05  Added a bunch of mocha tests. (unit test)
+* v1.0.0  2015-08-31  Initial release.
 

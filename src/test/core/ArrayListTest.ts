@@ -3,7 +3,7 @@
 /// <reference path="../../../typings/assert/assert.d.ts"/>
 
 import { list, XIterable, XIterator, XCollection, XList } from "../../main/core/Iterable";
-import { CorePromise as Promise } from "core-promise";
+import { DefaultPromise as Promise } from "core-promise";
 import assert = require("assert");
 
 describe('ArrayList', function() {

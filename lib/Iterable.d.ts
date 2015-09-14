@@ -1,5 +1,5 @@
+/// <reference path="../node_modules/grunt-typescript/node_modules/typescript/bin/lib.es6.d.ts" />
 /// <reference path="../node_modules/core-promise/core-promise.d.ts" />
-import { CorePromise as Promise } from 'core-promise';
 export interface XIterator<T> {
     hasNext(): boolean;
     next(): T;
